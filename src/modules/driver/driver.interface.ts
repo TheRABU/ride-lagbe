@@ -20,8 +20,6 @@ export interface IDriver {
   vehicle: IVehicle;
   currentLocation?: IPoint;
   status: DriverStatus;
-  rating: number;
-  totalRides: number;
   isApproved: boolean;
   createdAt?: Date;
   updatedAt?: Date;

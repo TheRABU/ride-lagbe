@@ -47,16 +47,6 @@ const driverSchema = new Schema<IDriver>(
       enum: Object.values(DriverStatus),
       default: DriverStatus.OFFLINE,
     },
-    rating: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5,
-    },
-    totalRides: {
-      type: Number,
-      default: 0,
-    },
     isApproved: {
       type: Boolean,
       default: false,
