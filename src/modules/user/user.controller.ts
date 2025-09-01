@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
-import { UserServices } from "./user.services";
+import { UserServices } from "./user.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
