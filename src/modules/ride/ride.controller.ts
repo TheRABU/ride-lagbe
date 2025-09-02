@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { RideServices } from "./ride.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
@@ -30,6 +30,7 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
 
   const ridePayload: Partial<IRide> = {
     user_id: userId,
+    email: req.user?.email,
     pickup_location: {
       type: "Point",
       coordinates: [pickupLng, pickupLat],
@@ -50,6 +51,32 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyRequestedRides = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        throw new Error("Invalid or missing userId in request.");
+      }
+      const myInfoPayload = {
+        user_id: userId,
+        email: req.user?.email,
+      };
+      const myInfo = await RideServices.myRidesService(myInfoPayload);
+
+      sendResponse(res, {
+        success: true,
+        message: `Fetched all requests of the user: ${myInfo[0].email}`,
+        statusCode: 201,
+        data: myInfo,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const RideController = {
   requestRide,
+  getMyRequestedRides,
 };

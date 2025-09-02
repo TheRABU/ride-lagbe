@@ -58,6 +58,15 @@ const requestRideService = async (payload: Partial<IRide>) => {
   return ride;
 };
 
+const myRidesService = async (payload: Partial<IRide>) => {
+  const email = payload.email;
+
+  const rides = Ride.find({ email: email });
+
+  return rides;
+};
+
 export const RideServices = {
   requestRideService,
+  myRidesService,
 };

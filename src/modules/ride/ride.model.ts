@@ -19,6 +19,11 @@ const rideSchema = new Schema<IRide>({
     ref: "User",
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   pickup_location: {
     type: {
       type: String,
