@@ -10,11 +10,18 @@ export enum RideStatus {
   NO_DRIVERS_FOUND = "NO_DRIVERS_FOUND",
 }
 
+export interface IGeoLocation {
+  type: "Point";
+  coordinates: [number, number]; // latitude, longitude
+}
+
 export interface IRide {
   _id: Types.ObjectId;
   user_id: Types.ObjectId;
-  location: string;
-  trip_fare: string;
-  duration: string;
+  email: string;
+  pickup_location: IGeoLocation;
+  destination: IGeoLocation;
+  trip_fare: number;
+  duration: number;
   status: RideStatus;
 }
