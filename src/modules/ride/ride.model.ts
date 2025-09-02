@@ -1,6 +1,18 @@
 import { model, Schema } from "mongoose";
 import { IRide, RideStatus } from "./ride.interface";
 
+const pointSchema = new Schema({
+  type: {
+    type: String,
+    enum: ["Point"],
+    required: true,
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+  },
+});
+
 const rideSchema = new Schema<IRide>({
   user_id: {
     type: Schema.Types.ObjectId,

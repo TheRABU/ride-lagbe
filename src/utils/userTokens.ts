@@ -7,6 +7,7 @@ import { generateToken, verifyToken } from "./jwt";
 import AppError from "../helpers/AppError";
 
 export const createUserTokens = (user: Partial<IUser>) => {
+  // jwt payload
   const jwtPayload = {
     userId: user._id,
     email: user.email,

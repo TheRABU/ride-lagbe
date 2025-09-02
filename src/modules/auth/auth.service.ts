@@ -1,5 +1,8 @@
 import AppError from "../../helpers/AppError";
-import { createUserTokens } from "../../utils/userTokens";
+import {
+  createNewAccessTokenWithRefreshToken,
+  createUserTokens,
+} from "../../utils/userTokens";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import httpStatus from "http-status-codes";
@@ -45,6 +48,59 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   };
 };
 
+const getNewAccessToken = async (refreshToken: string) => {
+  // const verifiedRefreshToken = verifyToken(
+  //   refreshToken,
+  //   process.env.JWT_REFRESH_SECRET as string
+  // ) as JwtPayload;
+
+  // const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
+
+  // if (!isUserExist) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     "Could not find user with the email, User does not exist try creating a user first!"
+  //   );
+  // }
+
+  // if (
+  //   isUserExist.isActive === isActive.BLOCKED ||
+  //   isUserExist.isActive === isActive.INACTIVE
+  // ) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     `User is: ${isUserExist.isActive}`
+  //   );
+  // }
+  // if (isUserExist.isDeleted) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, "User is Deleted!");
+  // }
+
+  // const jwtPayload = {
+  //   userId: isUserExist._id,
+  //   email: isUserExist.email,
+  //   role: isUserExist.role,
+  // };
+
+  // const accessToken = generateToken(
+  //   jwtPayload,
+  //   process.env.WT_REFRESH_TOKEN as string,
+  //   process.env.JWT_REFRESH_EXPIRES as string
+  // );
+  // return {
+  //   accessToken,
+  // };
+
+  const newAccessToken = await createNewAccessTokenWithRefreshToken(
+    refreshToken
+  );
+
+  return {
+    accessToken: newAccessToken,
+  };
+};
+
 export const AuthServices = {
   credentialsLogin,
+  getNewAccessToken,
 };

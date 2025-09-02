@@ -10,20 +10,33 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
     req.body;
 
   const userId = req.user?.userId;
+  if (!userId) {
+    throw new Error("Invalid or missing userId in request.");
+  }
 
-  //   if (!userId) {
-  //     throw new Error("Invalid or missing userId in request.");
-  //   }
+  const pickupLat = parseFloat(pickupLatitude);
+  const pickupLng = parseFloat(pickupLongitude);
+  const destLat = parseFloat(destLatitude);
+  const destLng = parseFloat(destLongitude);
+
+  if (
+    isNaN(pickupLat) ||
+    isNaN(pickupLng) ||
+    isNaN(destLat) ||
+    isNaN(destLng)
+  ) {
+    throw new Error("Invalid coordinates. Must be numbers.");
+  }
 
   const ridePayload: Partial<IRide> = {
-    // user_id: new Types.ObjectId(userId),
+    user_id: userId,
     pickup_location: {
-      type: "Point" as const,
-      coordinates: [pickupLongitude as number, pickupLatitude as number],
+      type: "Point",
+      coordinates: [pickupLng, pickupLat],
     },
     destination: {
-      type: "Point" as const,
-      coordinates: [destLongitude as number, destLatitude as number],
+      type: "Point",
+      coordinates: [destLng, destLat],
     },
   };
 

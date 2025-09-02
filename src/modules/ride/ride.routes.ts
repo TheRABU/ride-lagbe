@@ -5,6 +5,6 @@ import { Role } from "../user/user.interface";
 
 const rideRoutes = Router();
 
-rideRoutes.post("/request", RideController.requestRide);
+rideRoutes.post("/request", checkAuth(Role.USER), RideController.requestRide);
 
 export default rideRoutes;
