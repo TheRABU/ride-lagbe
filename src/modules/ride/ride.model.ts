@@ -2,6 +2,11 @@ import { model, Schema } from "mongoose";
 import { IRide, RideStatus } from "./ride.interface";
 
 const rideSchema = new Schema<IRide>({
+  user_id: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   location: {
     type: String,
     required: true,
