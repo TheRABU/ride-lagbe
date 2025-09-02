@@ -7,15 +7,33 @@ const rideSchema = new Schema<IRide>({
     ref: "User",
     required: true,
   },
-  location: {
-    type: String,
-    required: true,
+  pickup_location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number], // array of numbers which is latitude and longitude
+      required: true,
+    },
+  },
+  destination: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number], // array of numbers which is latitude and longitude
+      required: true,
+    },
   },
   trip_fare: {
-    type: String,
+    type: Number,
   },
   duration: {
-    type: String,
+    type: Number,
   },
   status: {
     type: String,
