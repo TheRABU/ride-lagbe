@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { RideServices } from "./ride.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
-import { Types } from "mongoose";
 import { IRide } from "./ride.interface";
+import mongoose from "mongoose";
 
+//api/v1/rides/request
 const requestRide = catchAsync(async (req: Request, res: Response) => {
   const { pickupLatitude, pickupLongitude, destLongitude, destLatitude } =
     req.body;
@@ -51,6 +52,8 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//api/v1/rides/me
+
 const getMyRequestedRides = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -76,7 +79,35 @@ const getMyRequestedRides = catchAsync(
   }
 );
 
+// api/v1/rides/:id/status
+
+const cancelRide = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+      const email = req.user?.email;
+
+      const payload = {
+        _id: new mongoose.Types.ObjectId(id),
+        email,
+      };
+
+      const deletedRide = await RideServices.cancelRideService(payload);
+
+      sendResponse(res, {
+        success: true,
+        message: "Ride cancelled successfully",
+        statusCode: 200,
+        data: deletedRide,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const RideController = {
   requestRide,
   getMyRequestedRides,
+  cancelRide,
 };

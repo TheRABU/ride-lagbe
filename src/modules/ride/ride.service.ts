@@ -1,6 +1,6 @@
 import AppError from "../../helpers/AppError";
 import { calculateDistanceKm } from "../../utils/distanceCalculator";
-import { IRide } from "./ride.interface";
+import { IRide, RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
 import httpStatus from "http-status-codes";
 
@@ -66,7 +66,31 @@ const myRidesService = async (payload: Partial<IRide>) => {
   return rides;
 };
 
+const cancelRideService = async (payload: Partial<IRide>) => {
+  const { _id, email } = payload;
+
+  const ride = await Ride.findOne({ _id, email });
+  if (!ride) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Ride not found or invalid user"
+    );
+  }
+
+  if (ride.status === RideStatus.ACCEPTED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Cannot cancel an accepted ride"
+    );
+  }
+
+  const deletedRide = await Ride.findByIdAndDelete(_id);
+
+  return deletedRide;
+};
+
 export const RideServices = {
   requestRideService,
   myRidesService,
+  cancelRideService,
 };
