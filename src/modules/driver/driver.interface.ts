@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { IPoint } from "../user/user.interface";
+import { IPoint, IsActive } from "../user/user.interface";
 
 export interface IVehicle {
   model: string;
@@ -16,11 +16,20 @@ export enum DriverStatus {
 
 export interface IDriver {
   _id?: Types.ObjectId;
-  user: Types.ObjectId;
+  driver_email: string;
+  driver_name: string;
+  driver_phone: number;
+  driver_nid: string;
   vehicle: IVehicle;
+  ratings?: number;
+  currentRide?: Types.ObjectId | null;
+  earnings: number;
   currentLocation?: IPoint;
   status: DriverStatus;
   isApproved: boolean;
+  isActive: IsActive;
+  isDeleted: boolean;
+  isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
