@@ -5,7 +5,6 @@ import { DriverServices } from "./driver.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import { Types } from "mongoose";
 
-// create profile (optional endpoint)
 const createProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -13,7 +12,7 @@ const createProfile = catchAsync(
 
       const email = req.user?.email;
 
-      const { driver_name, driver_nid, driver_phone, vehicle } = req.body;
+      const { driver_name, driver_nid, vehicle } = req.body;
 
       if (!userId) throw new Error("Unauthorized");
 
@@ -21,7 +20,6 @@ const createProfile = catchAsync(
         driver_email: email,
         driver_name,
         driver_nid,
-        driver_phone,
         vehicle,
       };
 
@@ -75,10 +73,12 @@ const setAvailability = catchAsync(async (req: Request, res: Response) => {
 
 // accept ride (driver)
 const acceptRide = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
+  const userId = req.user?.userId; // driver's id
   const { rideId } = req.body;
   if (!userId) throw new Error("Unauthorized");
   if (!rideId) throw new Error("rideId required");
+
+  const ridePayload = {};
   const ride = await DriverServices.acceptRide(
     new Types.ObjectId(userId),
     new Types.ObjectId(rideId)

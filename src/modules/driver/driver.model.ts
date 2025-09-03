@@ -38,9 +38,9 @@ const driverSchema = new Schema<IDriver>(
       type: String,
       required: true,
     },
-    driver_phone: {
-      type: Number,
-    },
+    // driver_phone: {
+    //   type: Number,
+    // },
     driver_nid: {
       type: String,
     },

@@ -18,7 +18,7 @@ export interface IDriver {
   _id?: Types.ObjectId;
   driver_email: string;
   driver_name: string;
-  driver_phone: number;
+  driver_phone?: number;
   driver_nid: string;
   vehicle: IVehicle;
   ratings?: number;
