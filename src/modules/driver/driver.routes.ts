@@ -17,8 +17,8 @@ driverRoutes.patch(
   checkAuth(Role.DRIVER),
   DriverController.setAvailability
 );
-driverRoutes.post(
-  "/accept",
+driverRoutes.patch(
+  "/accept/:rideId",
   checkAuth(Role.DRIVER),
   DriverController.acceptRide
 );

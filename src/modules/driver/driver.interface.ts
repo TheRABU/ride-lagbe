@@ -16,6 +16,7 @@ export enum DriverStatus {
 
 export interface IDriver {
   _id?: Types.ObjectId;
+  user_id: Types.ObjectId;
   driver_email: string;
   driver_name: string;
   driver_phone?: number;

@@ -4,6 +4,12 @@ import { catchAsync } from "../../utils/catchAsync";
 import { DriverServices } from "./driver.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import { Types } from "mongoose";
+import { Ride } from "../ride/ride.model";
+import AppError from "../../helpers/AppError";
+import { RideStatus } from "../ride/ride.interface";
+import httpStatus from "http-status-codes";
+import { Driver } from "./driver.model";
+import { DriverStatus } from "./driver.interface";
 
 const createProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -73,21 +79,78 @@ const setAvailability = catchAsync(async (req: Request, res: Response) => {
 
 // accept ride (driver)
 const acceptRide = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId; // driver's id
-  const { rideId } = req.body;
-  if (!userId) throw new Error("Unauthorized");
-  if (!rideId) throw new Error("rideId required");
+  const driverId = req.user?.userId; // driver's user ID
+  const email = req.user?.email;
 
-  const ridePayload = {};
-  const ride = await DriverServices.acceptRide(
-    new Types.ObjectId(userId),
-    new Types.ObjectId(rideId)
+  const { rideId } = req.params;
+  console.log("driver's id found::", driverId);
+  if (!driverId) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Driver authentication required"
+    );
+  }
+
+  if (!rideId) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Ride ID is required");
+  }
+
+  // Find the ride and ensure it's in REQUESTED status
+  const ride = await Ride.findById(rideId);
+
+  if (!ride) {
+    throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
+  }
+
+  if (ride.status !== RideStatus.REQUESTED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Ride cannot be accepted. Current status: ${ride.status}`
+    );
+  }
+
+  // Check if driver exists and is approved
+  const driver = await Driver.findOne({ driver_email: email });
+
+  if (!driver) {
+    throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
+  }
+
+  //   if (driver.status !== DriverStatus.ONLINE) {
+  //     throw new AppError(
+  //       httpStatus.FORBIDDEN,
+  //       "Driver must be online to accept rides"
+  //     );
+  //   }
+
+  if (driver.currentRide) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "Driver is already on an active ride"
+    );
+  }
+
+  // Update the ride with driver info and change status
+  const updatedRide = await Ride.findByIdAndUpdate(
+    rideId,
+    {
+      driver_id: driverId,
+      status: RideStatus.ACCEPTED,
+      acceptedAt: new Date(),
+    },
+    { new: true } // Return the updated document
   );
+
+  // Update driver's current ride
+  driver.currentRide = new Types.ObjectId(rideId);
+  driver.status = DriverStatus.ON_TRIP;
+  await driver.save();
+
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Ride accepted",
-    data: ride,
+    message: "Ride accepted successfully",
+    data: updatedRide,
   });
 });
 

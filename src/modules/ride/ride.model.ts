@@ -19,6 +19,11 @@ const rideSchema = new Schema<IRide>({
     ref: "User",
     required: true,
   },
+  driver_id: {
+    type: Schema.Types.ObjectId,
+    ref: "Driver",
+    required: true,
+  },
   email: {
     type: String,
     required: true,
