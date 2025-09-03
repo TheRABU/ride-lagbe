@@ -19,7 +19,8 @@ export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization;
+      // const accessToken = req.headers.authorization;
+      const accessToken = req.header("Authorization")?.replace("Bearer ", "");
 
       if (!accessToken) {
         throw new AppError(403, "No Token Received");
@@ -54,6 +55,8 @@ export const checkAuth =
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(403, "You are not permitted to view this route!!!");
       }
+      // if user also a driver
+
       req.user = verifiedToken;
       next();
     } catch (error) {

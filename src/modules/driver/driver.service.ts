@@ -7,6 +7,7 @@ import { Ride } from "../ride/ride.model";
 import { DriverStatus, IDriver } from "./driver.interface";
 import { RideStatus } from "../ride/ride.interface";
 import { Role } from "../user/user.interface";
+import { User } from "../user/user.model";
 
 /**
  * Create driver profile (called after user registers or separate flow)
@@ -20,6 +21,21 @@ const createDriverProfile = async (payload: Partial<IDriver>) => {
     );
   }
   const driver = await Driver.create(payload);
+  // then change the user's role to driver
+
+  const updatedUser = await User.findOneAndUpdate(
+    { email: driver.driver_email },
+    { role: Role.DRIVER },
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "User not found with the provided email or could not update this user's role to driver"
+    );
+  }
+
   return driver;
 };
 
