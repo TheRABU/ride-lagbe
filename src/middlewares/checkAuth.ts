@@ -20,7 +20,8 @@ export const checkAuth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       // const accessToken = req.headers.authorization;
-      const accessToken = req.header("Authorization")?.replace("Bearer ", "");
+      // const accessToken = req.header("Authorization")?.replace("Bearer ", "");
+      const accessToken = req.cookies.accessToken;
 
       if (!accessToken) {
         throw new AppError(403, "No Token Received");
@@ -30,7 +31,9 @@ export const checkAuth =
         accessToken,
         process.env.JWT_ACCESS_SECRET
       ) as JwtPayload;
-
+      if (!verifiedToken) {
+        throw new AppError(404, "Could not found verifiedTOken");
+      }
       const isUserExist = await User.findOne({ email: verifiedToken.email });
 
       if (!isUserExist) {
