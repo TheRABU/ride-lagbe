@@ -73,17 +73,11 @@ const setAvailability = async (
  * - checks driver not busy / online & approved
  * - assigns driver and sets status ACCEPTED
  */
-const acceptRide = async (
-  driverUserId: Types.ObjectId,
-  rideId: Types.ObjectId
-) => {
-  const driver = await Driver.findOne({ user_id: driverUserId });
+const acceptRide = async (payload: Partial<IDriver>) => {
+  const { driver_email, rideId } = payload;
+  const driver = await Driver.findOne({ driver_email: driver_email });
   if (!driver)
     throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
-  if (!driver.isApproved)
-    throw new AppError(httpStatus.FORBIDDEN, "Driver not approved");
-  if (!driver.isOnline)
-    throw new AppError(httpStatus.FORBIDDEN, "Driver is offline");
 
   if (driver.currentRide) {
     throw new AppError(
@@ -104,7 +98,7 @@ const acceptRide = async (
   }
 
   // assign and update
-  ride.driver_id = driver._id; // or driver.user_id depending how you want to reference
+  // ride.driver_id = driver._id;
   ride.status = RideStatus.ACCEPTED;
   await ride.save();
 
@@ -127,6 +121,7 @@ const rejectRide = async (
     throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
 
   const ride = await Ride.findById(rideId);
+
   if (!ride) throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
   // only allow rejecting when requested
   if (ride.status !== RideStatus.REQUESTED) {
@@ -135,73 +130,39 @@ const rejectRide = async (
       "Ride cannot be rejected at this stage"
     );
   }
-
   // Optionally log rejection (not deleting)
   // For now, we just return a message so rider can get new driver
-  return { message: "Ride rejected by driver" };
+  return { message: `Ride rejected by driver: ${driver.driver_email}` };
 };
 
 /**
  * Update ride status: driver updates in-transit/picked/completed
  */
-const updateRideStatus = async (
-  driverUserId: Types.ObjectId,
-  rideId: Types.ObjectId,
-  newStatus: RideStatus
-) => {
-  const driver = await Driver.findOne({ user_id: driverUserId });
-  if (!driver)
-    throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
+const completedRideService = async (payload: Partial<IDriver>) => {
+  const { driver_email, rideId } = payload;
 
+  const driver = await Driver.findOne({ driver_email: driver_email });
   const ride = await Ride.findById(rideId);
-  if (!ride) throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
 
-  // ensure driver assigned to this ride
-  if (!ride.driver_id || ride.driver_id.toString() !== driver._id.toString()) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "Driver not assigned to this ride"
-    );
+  if (!driver) {
+    throw new AppError(403, "No driver found");
+  }
+  if (!ride) {
+    throw new AppError(403, "no Ride found");
   }
 
-  // Allowed transitions (simple guard)
-  const allowed = {
-    [RideStatus.ACCEPTED]: [
-      RideStatus.IN_PROGRESS,
-      RideStatus.CANCELLED_BY_DRIVER,
-    ],
-    [RideStatus.IN_PROGRESS]: [
-      RideStatus.COMPLETED,
-      RideStatus.CANCELLED_BY_DRIVER,
-    ],
-    [RideStatus.REQUESTED]: [
-      RideStatus.ACCEPTED,
-      RideStatus.CANCELLED_BY_DRIVER,
-    ],
-  };
-
-  const current = ride.status;
-  // If explicit allowed map exists, ensure newStatus is allowed; otherwise rely on business rules
-  if (allowed[current] && !allowed[current].includes(newStatus)) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Cannot change status from ${current} to ${newStatus}`
-    );
-  }
-
-  ride.status = newStatus;
+  ride.status = RideStatus.COMPLETED;
   await ride.save();
+  driver.earnings = ride.trip_fare;
+  driver.currentRide = null;
+  driver.status = DriverStatus.ONLINE;
+  await driver.save();
 
-  // On completion, clear driver's currentRide and add earnings
-  if (newStatus === RideStatus.COMPLETED) {
-    driver.currentRide = null;
-    if (typeof ride.trip_fare === "number") {
-      driver.earnings = (driver.earnings || 0) + ride.trip_fare;
-    }
-    await driver.save();
-  }
-
-  return ride;
+  const completedRideObj = {
+    ride,
+    driver,
+  };
+  return completedRideObj;
 };
 
 /**
@@ -248,7 +209,7 @@ export const DriverServices = {
   setAvailability,
   acceptRide,
   rejectRide,
-  updateRideStatus,
+  completedRideService,
   getEarnings,
   getAssignedRides,
 };

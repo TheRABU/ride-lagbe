@@ -10,6 +10,7 @@ import { RideStatus } from "../ride/ride.interface";
 import httpStatus from "http-status-codes";
 import { Driver } from "./driver.model";
 import { DriverStatus } from "./driver.interface";
+import { RideServices } from "../ride/ride.service";
 
 const createProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -79,12 +80,10 @@ const setAvailability = catchAsync(async (req: Request, res: Response) => {
 
 // accept ride (driver)
 const acceptRide = catchAsync(async (req: Request, res: Response) => {
-  const driverId = req.user?.userId; // driver's user ID
   const email = req.user?.email;
 
   const { rideId } = req.params;
-  console.log("driver's id found::", driverId);
-  if (!driverId) {
+  if (!email) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
       "Driver authentication required"
@@ -95,62 +94,68 @@ const acceptRide = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Ride ID is required");
   }
 
+  const acceptRidePayload = {
+    driver_email: email,
+    rideId: new Types.ObjectId(rideId),
+  };
+  const acceptedRide = await DriverServices.acceptRide(acceptRidePayload);
+
   // Find the ride and ensure it's in REQUESTED status
-  const ride = await Ride.findById(rideId);
+  // const ride = await Ride.findById(rideId);
 
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
-  }
+  // if (!ride) {
+  //   throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
+  // }
 
-  if (ride.status !== RideStatus.REQUESTED) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Ride cannot be accepted. Current status: ${ride.status}`
-    );
-  }
+  // if (ride.status !== RideStatus.REQUESTED) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     `Ride cannot be accepted. Current status: ${ride.status}`
+  //   );
+  // }
 
-  // Check if driver exists and is approved
-  const driver = await Driver.findOne({ driver_email: email });
+  // // Check if driver exists and is approved
+  // const driver = await Driver.findOne({ driver_email: email });
 
-  if (!driver) {
-    throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
-  }
+  // if (!driver) {
+  //   throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
+  // }
 
-  //   if (driver.status !== DriverStatus.ONLINE) {
-  //     throw new AppError(
-  //       httpStatus.FORBIDDEN,
-  //       "Driver must be online to accept rides"
-  //     );
-  //   }
+  // //   if (driver.status !== DriverStatus.ONLINE) {
+  // //     throw new AppError(
+  // //       httpStatus.FORBIDDEN,
+  // //       "Driver must be online to accept rides"
+  // //     );
+  // //   }
 
-  if (driver.currentRide) {
-    throw new AppError(
-      httpStatus.CONFLICT,
-      "Driver is already on an active ride"
-    );
-  }
+  // if (driver.currentRide) {
+  //   throw new AppError(
+  //     httpStatus.CONFLICT,
+  //     "Driver is already on an active ride"
+  //   );
+  // }
 
-  // Update the ride with driver info and change status
-  const updatedRide = await Ride.findByIdAndUpdate(
-    rideId,
-    {
-      driver_id: driverId,
-      status: RideStatus.ACCEPTED,
-      acceptedAt: new Date(),
-    },
-    { new: true } // Return the updated document
-  );
+  // // Update the ride with driver info and change status
+  // const updatedRide = await Ride.findByIdAndUpdate(
+  //   rideId,
+  //   {
+  //     driver_id: driverId,
+  //     status: RideStatus.ACCEPTED,
+  //     acceptedAt: new Date(),
+  //   },
+  //   { new: true } // Return the updated document
+  // );
 
-  // Update driver's current ride
-  driver.currentRide = new Types.ObjectId(rideId);
-  driver.status = DriverStatus.ON_TRIP;
-  await driver.save();
+  // // Update driver's current ride
+  // driver.currentRide = new Types.ObjectId(rideId);
+  // driver.status = DriverStatus.ON_TRIP;
+  // await driver.save();
 
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Ride accepted successfully",
-    data: updatedRide,
+    data: acceptedRide,
   });
 });
 
@@ -178,27 +183,37 @@ const rejectRide = catchAsync(
   }
 );
 
-// update ride status
-const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
-  const { rideId, status } = req.body;
-  if (!userId) throw new Error("Unauthorized");
-  if (!rideId || !status) throw new Error("rideId and status required");
+// update ride status completed!!
+const completedRide = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const email = req.user?.email;
+      const rideId = req.params.rideId;
 
-  // validate status belongs to RideStatus enum externally or parse
-  const ride = await DriverServices.updateRideStatus(
-    new Types.ObjectId(userId),
-    new Types.ObjectId(rideId),
-    status
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "Ride status updated",
-    data: ride,
-  });
-});
-
+      if (!email) {
+        throw new AppError(403, "Email not found");
+      }
+      if (!rideId) {
+        throw new AppError(403, "rideId not found");
+      }
+      const rideStatusPayload = {
+        driver_email: email,
+        rideId: new Types.ObjectId(rideId),
+      };
+      const rideStatus = await DriverServices.completedRideService(
+        rideStatusPayload
+      );
+      sendResponse(res, {
+        success: true,
+        message: "Ride completed",
+        statusCode: 201,
+        data: rideStatus,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 // get earnings
 const getEarnings = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
@@ -233,7 +248,7 @@ export const DriverController = {
   setAvailability,
   acceptRide,
   rejectRide,
-  updateRideStatus,
+  completedRide,
   getEarnings,
   getAssignedRides,
 };

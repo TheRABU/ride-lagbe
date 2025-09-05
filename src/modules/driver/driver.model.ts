@@ -38,6 +38,9 @@ const driverSchema = new Schema<IDriver>(
       type: String,
       required: true,
     },
+    rideId: {
+      type: Schema.Types.ObjectId,
+    },
     // driver_phone: {
     //   type: Number,
     // },

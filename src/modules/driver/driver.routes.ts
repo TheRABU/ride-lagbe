@@ -17,6 +17,7 @@ driverRoutes.patch(
   checkAuth(Role.DRIVER),
   DriverController.setAvailability
 );
+// accept ride
 driverRoutes.patch(
   "/accept/:rideId",
   checkAuth(Role.DRIVER),
@@ -27,10 +28,12 @@ driverRoutes.post(
   checkAuth(Role.DRIVER),
   DriverController.rejectRide
 );
+
+// completed ride
 driverRoutes.patch(
-  "/status",
+  "/status/:rideId",
   checkAuth(Role.DRIVER),
-  DriverController.updateRideStatus
+  DriverController.completedRide
 );
 driverRoutes.get(
   "/earnings",
