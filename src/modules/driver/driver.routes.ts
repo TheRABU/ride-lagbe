@@ -3,10 +3,17 @@ import express from "express";
 import { DriverController } from "./driver.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { Role } from "../user/user.interface";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { createDriverProfileValidation } from "./driver.validation";
 
 const driverRoutes = express.Router();
 
-driverRoutes.post("/", checkAuth(Role.USER), DriverController.createProfile);
+driverRoutes.post(
+  "/",
+  checkAuth(Role.USER),
+  validateRequest(createDriverProfileValidation),
+  DriverController.createProfile
+);
 // driverRoutes.patch(
 //   "/approve/:id",
 //   checkAuth(Role.ADMIN),

@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { UserServices } from "./user.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
+import { User } from "./user.model";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const user = await UserServices.createUserService(req.body);
@@ -14,6 +15,25 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// admin route
+const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const users = await User.find();
+
+      sendResponse(res, {
+        success: true,
+        statusCode: 200,
+        message: "fetched all users",
+        data: users,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const UserControllers = {
   registerUser,
+  getAllUsers,
 };
