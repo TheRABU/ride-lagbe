@@ -220,6 +220,29 @@ const getEarnings = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllDrivers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const drivers = await Driver.find();
+
+      if (drivers.length === 0) {
+        res.status(200).json({
+          message: "No drivers are in the database yet!",
+        });
+      }
+
+      sendResponse(res, {
+        success: true,
+        message: "Found all the drivers",
+        statusCode: 200,
+        data: drivers,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const DriverController = {
   createProfile,
   setAvailability,
@@ -227,4 +250,5 @@ export const DriverController = {
   rejectRide,
   completedRide,
   getEarnings,
+  getAllDrivers,
 };

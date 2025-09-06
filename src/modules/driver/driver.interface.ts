@@ -23,7 +23,7 @@ export interface IDriver {
   driver_nid: string;
   vehicle: IVehicle;
   ratings?: number;
-  rideId?: Types.ObjectId;
+  rideId?: Types.ObjectId | string;
   currentRide?: Types.ObjectId | null;
   earnings: number;
   currentLocation?: IPoint;

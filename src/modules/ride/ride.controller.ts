@@ -4,6 +4,7 @@ import { RideServices } from "./ride.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import { IRide } from "./ride.interface";
 import mongoose from "mongoose";
+import { Ride } from "./ride.model";
 
 /**
  * THE ride related apis here is for users... user's request for a ride and his own status, delete etc options.
@@ -118,8 +119,25 @@ const cancelRide = catchAsync(
   }
 );
 
+const getAllRides = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const rides = await Ride.find();
+      sendResponse(res, {
+        success: true,
+        message: "Fetched all rides data",
+        statusCode: 201,
+        data: rides,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const RideController = {
   requestRide,
   getMyRequestedRides,
   cancelRide,
+  getAllRides,
 };

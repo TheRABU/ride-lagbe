@@ -53,4 +53,10 @@ driverRoutes.get(
 //   DriverController.getAssignedRides
 // );
 
+driverRoutes.get(
+  "/all-drivers",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  DriverController.getAllDrivers
+);
+
 export default driverRoutes;
