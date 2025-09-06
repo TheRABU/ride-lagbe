@@ -44,6 +44,21 @@ const blockUnblockUser = catchAsync(
       if (!user) {
         throw new AppError(404, "User Not found!");
       }
+
+      if (user.isActive === IsActive.BLOCKED) {
+        user.isActive = IsActive.ACTIVE;
+        await user.save();
+      } else {
+        user.isActive = IsActive.BLOCKED;
+        await user.save();
+      }
+
+      sendResponse(res, {
+        success: true,
+        message: `User is now ${user.isActive}`,
+        statusCode: 201,
+        data: user,
+      });
     } catch (error) {
       next(error);
     }
@@ -53,4 +68,5 @@ const blockUnblockUser = catchAsync(
 export const UserControllers = {
   registerUser,
   getAllUsers,
+  blockUnblockUser,
 };

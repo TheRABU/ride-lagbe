@@ -12,4 +12,11 @@ userRoutes.get(
   UserControllers.getAllUsers
 );
 
+//admin
+userRoutes.patch(
+  "/block-unblock/:email",
+  checkAuth(Role.ADMIN),
+  UserControllers.blockUnblockUser
+);
+
 export default userRoutes;
