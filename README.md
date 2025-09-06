@@ -279,10 +279,9 @@ Response:
 
 ```
 
-- /:id: Cancel the ride but only if any driver has not picked up the ride yet and the status is still "PENDING" or else users cannot cancel the ride if the driver has already accepted the ride
+- /:id - DELETE: Cancel the ride but only if any driver has not picked up the ride yet and the status is still "PENDING" or else users cannot cancel the ride if the driver has already accepted the ride
 
-- /delete
-  Response:
+Response:
 
 ```
 {
@@ -310,6 +309,194 @@ Response:
         "trip_fare": 167,
         "duration": 9,
         "status": "REQUESTED",
+        "__v": 0
+    }
+}
+```
+
+## Driver
+
+```
+ /api/v1/drivers - POST
+ /api/v1/drivers/accept/:rideId - PATCH
+ /api/v1/drivers/availability - PATCH
+ /api/v1/drivers/reject - POST
+ /api/v1/drivers/status/:rideId - PATCH
+ /api/v1/drivers/earnings - GET
+
+```
+
+- Create Driver profile
+  Request:
+
+```
+{
+    "driver_name": "Titumir haque",
+    "drver_nid": "425lll-031",
+    "vehicle": {
+        "model" : "Toyota Corolla ES",
+        "licensePlate" : "DHK-12-3205",
+        "color": "Black",
+        "year" : 2018
+    }
+}
+```
+
+Response:
+
+```
+{
+    "statusCode": 201,
+    "success": true,
+    "message": "Driver profile created",
+    "data": {
+        "driver_email": "titu@mir.com",
+        "driver_name": "Titumir haque",
+        "vehicle": {
+            "model": "Toyota Corolla ES",
+            "licensePlate": "DHK-12-3205",
+            "color": "Black",
+            "year": 2018
+        },
+        "currentRide": null,
+        "earnings": 0,
+        "ratings": 0,
+        "status": "OFFLINE",
+        "isApproved": false,
+        "isDeleted": false,
+        "isVerified": false,
+        "isActive": "ACTIVE",
+        "_id": "68bc32700eeec5b7d0ac2ded",
+        "createdAt": "2025-09-06T13:09:04.176Z",
+        "updatedAt": "2025-09-06T13:09:04.176Z",
+        "__v": 0
+    }
+}
+```
+
+- Accept ride
+  Response:
+
+```
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "Ride accepted successfully",
+    "data": {
+        "pickup_location": {
+            "type": "Point",
+            "coordinates": [
+                90.376015,
+                25.746466
+            ]
+        },
+        "destination": {
+            "type": "Point",
+            "coordinates": [
+                90.401215,
+                25.792496
+            ]
+        },
+        "_id": "68bb35fb975f15d9fa767784",
+        "user_id": "68bb1f61bb8a372bf11d195f",
+        "email": "arif@sarkar.com",
+        "trip_fare": 221,
+        "duration": 9,
+        "status": "ACCEPTED",
+        "__v": 0
+    }
+}
+
+```
+
+- Completed:
+
+Response
+
+```
+{
+    "statusCode": 201,
+    "success": true,
+    "message": "Ride completed",
+    "data": {
+        "ride": {
+            "pickup_location": {
+                "type": "Point",
+                "coordinates": [
+                    90.376015,
+                    25.746466
+                ]
+            },
+            "destination": {
+                "type": "Point",
+                "coordinates": [
+                    90.401215,
+                    25.792496
+                ]
+            },
+            "_id": "68bc3c8ff74a304bd0a35828",
+            "user_id": "68bb1f61bb8a372bf11d195f",
+            "email": "arif@sarkar.com",
+            "trip_fare": 222,
+            "duration": 9,
+            "status": "COMPLETED",
+            "__v": 0
+        },
+        "driver": {
+            "_id": "68bc32700eeec5b7d0ac2ded",
+            "driver_email": "titu@mir.com",
+            "driver_name": "Titumir haque",
+            "vehicle": {
+                "model": "Toyota Corolla ES",
+                "licensePlate": "DHK-12-3205",
+                "color": "Black",
+                "year": 2018
+            },
+            "currentRide": null,
+            "earnings": 222,
+            "ratings": 0,
+            "status": "ONLINE",
+            "isApproved": false,
+            "isDeleted": false,
+            "isVerified": false,
+            "isActive": "ACTIVE",
+            "createdAt": "2025-09-06T13:09:04.176Z",
+            "updatedAt": "2025-09-06T13:54:34.074Z",
+            "__v": 0
+        }
+    }
+}
+
+```
+
+- Availability (ONLINE/OFFLINE)
+  Response
+
+```
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "Driver is now online",
+    "data": {
+        "_id": "68bc32700eeec5b7d0ac2ded",
+        "driver_email": "titu@mir.com",
+        "driver_name": "Titumir haque",
+        "vehicle": {
+            "model": "Toyota Corolla ES",
+            "licensePlate": "DHK-12-3205",
+            "color": "Black",
+            "year": 2018
+        },
+        "currentRide": null,
+        "earnings": 222,
+        "ratings": 0,
+        "status": "ONLINE",
+        "isApproved": false,
+        "isDeleted": false,
+        "isVerified": false,
+        "isActive": "ACTIVE",
+        "createdAt": "2025-09-06T13:09:04.176Z",
+        "updatedAt": "2025-09-06T13:54:34.074Z",
         "__v": 0
     }
 }

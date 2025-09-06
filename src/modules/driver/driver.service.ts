@@ -40,28 +40,21 @@ const createDriverProfile = async (payload: Partial<IDriver>) => {
 };
 
 /**
- * Admin approval toggle
- */
-const approveDriver = async (driverId: Types.ObjectId, approve = true) => {
-  const driver = await Driver.findById(driverId);
-  if (!driver) throw new AppError(httpStatus.NOT_FOUND, "Driver not found");
-  driver.isApproved = approve;
-  await driver.save();
-  return driver;
-};
-
-/**
  * Set driver availability (online/offline)
  */
-const setAvailability = async (
-  driverUserId: Types.ObjectId,
-  isOnline: boolean
-) => {
-  const driver = await Driver.findOne({ user_id: driverUserId });
+const setAvailability = async (payload: Partial<IDriver>) => {
+  const driver = await Driver.findOne({ driver_email: payload.driver_email });
   if (!driver) throw new AppError(httpStatus.NOT_FOUND, "Driver not found");
-  if (!driver.isApproved)
-    throw new AppError(httpStatus.FORBIDDEN, "Driver not approved");
+
+  if (driver.currentRide !== null && driver.status === DriverStatus.ON_TRIP) {
+    throw new AppError(
+      404,
+      "Driver is already on a trip! Complete that to set the available to online"
+    );
+  }
+
   driver.status = DriverStatus.ONLINE;
+  driver.currentRide = null;
   await driver.save();
   return driver;
 };
@@ -79,7 +72,7 @@ const acceptRide = async (payload: Partial<IDriver>) => {
   if (!driver)
     throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
 
-  if (driver.currentRide) {
+  if (driver.currentRide !== null && driver.status === DriverStatus.ON_TRIP) {
     throw new AppError(
       httpStatus.CONFLICT,
       "Driver already on another active ride"
@@ -103,6 +96,7 @@ const acceptRide = async (payload: Partial<IDriver>) => {
   await ride.save();
 
   driver.currentRide = ride._id;
+  driver.status = DriverStatus.ON_TRIP;
   await driver.save();
 
   return ride;
@@ -112,15 +106,12 @@ const acceptRide = async (payload: Partial<IDriver>) => {
  * Reject ride (driver declines)
  * - optionally add reason or track rejection counts
  */
-const rejectRide = async (
-  driverUserId: Types.ObjectId,
-  rideId: Types.ObjectId
-) => {
-  const driver = await Driver.findOne({ user_id: driverUserId });
+const rejectRide = async (payload: Partial<IDriver>) => {
+  const driver = await Driver.findOne({ driver_email: payload.driver_email });
   if (!driver)
     throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
 
-  const ride = await Ride.findById(rideId);
+  const ride = await Ride.findById(payload.rideId);
 
   if (!ride) throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
   // only allow rejecting when requested
@@ -130,9 +121,13 @@ const rejectRide = async (
       "Ride cannot be rejected at this stage"
     );
   }
-  // Optionally log rejection (not deleting)
-  // For now, we just return a message so rider can get new driver
-  return { message: `Ride rejected by driver: ${driver.driver_email}` };
+
+  ride.driver_id = null;
+  await ride.save();
+  return {
+    ride,
+    message: `Ride rejected by driver: ${driver.driver_email}`,
+  };
 };
 
 /**
@@ -153,7 +148,7 @@ const completedRideService = async (payload: Partial<IDriver>) => {
 
   ride.status = RideStatus.COMPLETED;
   await ride.save();
-  driver.earnings = ride.trip_fare;
+  driver.earnings += ride.trip_fare;
   driver.currentRide = null;
   driver.status = DriverStatus.ONLINE;
   await driver.save();
@@ -205,7 +200,7 @@ const getAssignedRides = async (
 
 export const DriverServices = {
   createDriverProfile,
-  approveDriver,
+
   setAvailability,
   acceptRide,
   rejectRide,

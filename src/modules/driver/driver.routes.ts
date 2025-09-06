@@ -7,11 +7,11 @@ import { Role } from "../user/user.interface";
 const driverRoutes = express.Router();
 
 driverRoutes.post("/", checkAuth(Role.USER), DriverController.createProfile);
-driverRoutes.patch(
-  "/approve/:id",
-  checkAuth(Role.ADMIN),
-  DriverController.approveDriver
-); // admin
+// driverRoutes.patch(
+//   "/approve/:id",
+//   checkAuth(Role.ADMIN),
+//   DriverController.approveDriver
+// ); // admin
 driverRoutes.patch(
   "/availability",
   checkAuth(Role.DRIVER),
@@ -40,10 +40,10 @@ driverRoutes.get(
   checkAuth(Role.DRIVER),
   DriverController.getEarnings
 );
-driverRoutes.get(
-  "/rides",
-  checkAuth(Role.DRIVER),
-  DriverController.getAssignedRides
-);
+// driverRoutes.get(
+//   "/rides",
+//   checkAuth(Role.DRIVER),
+//   DriverController.getAssignedRides
+// );
 
 export default driverRoutes;

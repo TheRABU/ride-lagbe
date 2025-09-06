@@ -55,9 +55,9 @@ export const checkAuth =
         throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
       }
 
-      if (!authRoles.includes(verifiedToken.role)) {
-        throw new AppError(403, "You are not permitted to view this route!!!");
-      }
+      // if (!authRoles.includes(verifiedToken.role)) {
+      //   throw new AppError(403, "You are not permitted to view this route!!!");
+      // }
       // if user also a driver
 
       req.user = verifiedToken;
