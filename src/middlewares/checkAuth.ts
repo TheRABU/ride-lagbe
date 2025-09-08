@@ -29,7 +29,7 @@ export const checkAuth =
 
       const verifiedToken = verifyToken(
         accessToken,
-        process.env.JWT_ACCESS_SECRET
+        process.env.JWT_ACCESS_SECRET as string
       ) as JwtPayload;
       if (!verifiedToken) {
         throw new AppError(404, "Could not found verifiedTOken");
