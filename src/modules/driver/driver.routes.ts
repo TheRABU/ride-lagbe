@@ -59,4 +59,11 @@ driverRoutes.get(
   DriverController.getAllDrivers
 );
 
+//admin
+driverRoutes.patch(
+  "/suspend-unsuspend/:email",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  DriverController.suspendUnsuspendDriver
+);
+
 export default driverRoutes;

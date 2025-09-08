@@ -1,5 +1,10 @@
 import { model, Schema } from "mongoose";
-import { IDriver, IVehicle, DriverStatus } from "./driver.interface";
+import {
+  IDriver,
+  IVehicle,
+  DriverStatus,
+  DriverService,
+} from "./driver.interface";
 import { IPoint, IsActive } from "../user/user.interface";
 
 const vehicleSchema = new Schema<IVehicle>(
@@ -82,6 +87,11 @@ const driverSchema = new Schema<IDriver>(
       type: String,
       enum: Object.values(IsActive),
       default: IsActive.ACTIVE,
+    },
+    isService: {
+      type: String,
+      enum: Object.values(DriverService),
+      default: DriverService.APPROVED,
     },
   },
   { timestamps: true }

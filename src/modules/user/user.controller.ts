@@ -4,7 +4,7 @@ import { UserServices } from "./user.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import { User } from "./user.model";
 import AppError from "../../helpers/AppError";
-import { IsActive } from "./user.interface";
+import { IsActive, Role } from "./user.interface";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const user = await UserServices.createUserService(req.body);
@@ -21,6 +21,17 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const email = req.user?.email;
+
+      const admin = await User.findOne({ email: email });
+      if (!admin) {
+        throw new AppError(404, "User not found");
+      }
+
+      if (admin.role !== Role.ADMIN) {
+        throw new AppError(403, "Unauthorized you are not an admin");
+      }
+
       const users = await User.find();
 
       sendResponse(res, {

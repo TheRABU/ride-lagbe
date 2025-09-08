@@ -9,7 +9,7 @@ import AppError from "../../helpers/AppError";
 import { RideStatus } from "../ride/ride.interface";
 import httpStatus from "http-status-codes";
 import { Driver } from "./driver.model";
-import { DriverStatus } from "./driver.interface";
+import { DriverService, DriverStatus } from "./driver.interface";
 import { RideServices } from "../ride/ride.service";
 
 const createProfile = catchAsync(
@@ -209,13 +209,19 @@ const completedRide = catchAsync(
 );
 // get earnings
 const getEarnings = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
-  if (!userId) throw new Error("Unauthorized");
-  const result = await DriverServices.getEarnings(new Types.ObjectId(userId));
+  const email = req.user?.email;
+  if (!email) {
+    throw new AppError(404, "Driver's email not found");
+  }
+  const myEarningPayload = {
+    driver_email: email,
+  };
+  const result = await DriverServices.getEarnings(myEarningPayload);
+
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Earnings fetched",
+    message: `Earnings fetched total earnings are: ${result} BDT`,
     data: result,
   });
 });
@@ -243,6 +249,40 @@ const getAllDrivers = catchAsync(
   }
 );
 
+const suspendUnsuspendDriver = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.params;
+
+      if (!email) throw new Error("Email is not found");
+
+      const driver = await Driver.findOne({ driver_email: email });
+
+      if (!driver) {
+        throw new AppError(404, "No driver found");
+      }
+
+      if (driver.isService === DriverService.SUSPENDED) {
+        driver.isService = DriverService.APPROVED;
+        await driver.save();
+      }
+      if (driver.isService === DriverService.APPROVED) {
+        driver.isService = DriverService.SUSPENDED;
+        await driver.save();
+      }
+
+      sendResponse(res, {
+        success: true,
+        message: `Driver is now: ${driver.isService}`,
+        statusCode: 201,
+        data: driver,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export const DriverController = {
   createProfile,
   setAvailability,
@@ -251,4 +291,5 @@ export const DriverController = {
   completedRide,
   getEarnings,
   getAllDrivers,
+  suspendUnsuspendDriver,
 };

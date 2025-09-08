@@ -14,6 +14,11 @@ export enum DriverStatus {
   ON_TRIP = "ON_TRIP",
 }
 
+export enum DriverService {
+  SUSPENDED = "SUSPENDED",
+  APPROVED = "APPROVED",
+}
+
 export interface IDriver {
   _id?: Types.ObjectId;
   user_id: Types.ObjectId;
@@ -32,6 +37,7 @@ export interface IDriver {
   isActive: IsActive;
   isDeleted: boolean;
   isVerified: boolean;
+  isService: DriverService;
   createdAt?: Date;
   updatedAt?: Date;
 }

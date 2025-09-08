@@ -163,23 +163,32 @@ const completedRideService = async (payload: Partial<IDriver>) => {
 /**
  * Driver earnings aggregation
  */
-const getEarnings = async (driverUserId: Types.ObjectId) => {
-  const driver = await Driver.findOne({ user_id: driverUserId });
+const getEarnings = async (payload: Partial<IDriver>) => {
+  const driver = await Driver.findOne({ driver_email: payload.driver_email });
   if (!driver)
     throw new AppError(httpStatus.NOT_FOUND, "Driver profile not found");
 
-  const result = await Ride.aggregate([
-    { $match: { driver_id: driver._id, status: RideStatus.COMPLETED } },
-    {
-      $group: {
-        _id: "$driver_id",
-        totalEarnings: { $sum: "$trip_fare" },
-        rides: { $push: "$$ROOT" },
-      },
-    },
-  ]);
+  // const result = await Ride.aggregate([
+  //   {
+  //     $match: {
+  //       driver_email: driver.driver_email,
+  //       status: RideStatus.COMPLETED,
+  //     },
+  //   },
+  //   {
+  //     $group: {
+  //       _id: "$driver_id",
+  //       totalEarnings: { $sum: "$trip_fare" },
+  //       rides: { $push: "$$ROOT" },
+  //     },
+  //   },
+  // ]);
 
-  return result[0] ?? { totalEarnings: 0, rides: [] };
+  // return result[0] ?? { totalEarnings: 0, rides: [] };
+
+  const myEarnings = driver.earnings;
+
+  return myEarnings;
 };
 
 /**
