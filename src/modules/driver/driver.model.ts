@@ -1,6 +1,11 @@
 import { model, Schema } from "mongoose";
-import { IDriver, IVehicle, DriverStatus } from "./driver.interface";
-import { IPoint } from "../user/user.interface";
+import {
+  IDriver,
+  IVehicle,
+  DriverStatus,
+  DriverService,
+} from "./driver.interface";
+import { IPoint, IsActive } from "../user/user.interface";
 
 const vehicleSchema = new Schema<IVehicle>(
   {
@@ -29,16 +34,35 @@ const pointSchema = new Schema<IPoint>(
 
 const driverSchema = new Schema<IDriver>(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+    driver_email: {
+      type: String,
       required: true,
       unique: true,
+    },
+    driver_name: {
+      type: String,
+      required: true,
+    },
+    rideId: {
+      type: Schema.Types.ObjectId,
+    },
+    // driver_phone: {
+    //   type: Number,
+    // },
+    driver_nid: {
+      type: String,
     },
     vehicle: {
       type: vehicleSchema,
       required: true,
     },
+    currentRide: {
+      type: Schema.Types.ObjectId,
+      ref: "Ride",
+      default: null,
+    },
+    earnings: { type: Number, default: 0 },
+    ratings: { type: Number, default: 0 },
     currentLocation: {
       type: pointSchema,
     },
@@ -50,6 +74,24 @@ const driverSchema = new Schema<IDriver>(
     isApproved: {
       type: Boolean,
       default: false,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: String,
+      enum: Object.values(IsActive),
+      default: IsActive.ACTIVE,
+    },
+    isService: {
+      type: String,
+      enum: Object.values(DriverService),
+      default: DriverService.APPROVED,
     },
   },
   { timestamps: true }

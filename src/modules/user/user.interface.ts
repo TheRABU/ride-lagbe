@@ -4,11 +4,12 @@ export enum Role {
   SUPER_ADMIN = "SUPER_ADMIN",
   ADMIN = "ADMIN",
   USER = "USER",
+  DRIVER = "DRIVER",
 }
 
 export interface IAuthProvider {
   provider: "google" | "credentials"; // "Google", "Credential"
-  providerId: string;
+  providerId: string | undefined;
 }
 
 export interface IPoint {
@@ -25,7 +26,7 @@ export enum IsActive {
 export interface IUser {
   _id?: Types.ObjectId;
   name: string;
-  email: string;
+  email: string | undefined;
   password?: string;
   phone?: string;
   location?: IPoint;
