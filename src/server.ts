@@ -8,9 +8,6 @@ let server: Server;
 const PORT = process.env.PORT || 5000;
 
 
-
-
-
 const startServer = async () => { 
   try {
     await connectDatabase();
