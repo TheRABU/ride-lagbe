@@ -4,14 +4,6 @@ import { RideServices } from "./ride.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import { IRide } from "./ride.interface";
 import mongoose from "mongoose";
-import { Ride } from "./ride.model";
-
-/**
- * THE ride related apis here is for users... user's request for a ride and his own status, delete etc options.
- *
- * the driver's ride related apis are in the driver module
- *
- */
 
 //api/v1/rides/request
 const requestRide = catchAsync(async (req: Request, res: Response) => {
@@ -61,6 +53,7 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
 });
 
 //api/v1/rides/me
+
 const getMyRequestedRides = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -73,17 +66,10 @@ const getMyRequestedRides = catchAsync(
         email: req.user?.email,
       };
       const myInfo = await RideServices.myRidesService(myInfoPayload);
-      if (!myInfo || myInfo.length === 0) {
-        return sendResponse(res, {
-          success: true,
-          message: "No rides found yet for this user.",
-          statusCode: 200,
-          data: [],
-        });
-      }
+
       sendResponse(res, {
         success: true,
-        message: `Fetched all requests of the user`,
+        message: `Fetched all requests of the user: ${myInfo[0].email}`,
         statusCode: 201,
         data: myInfo,
       });
@@ -94,6 +80,7 @@ const getMyRequestedRides = catchAsync(
 );
 
 // api/v1/rides/:id/status
+
 const cancelRide = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -119,25 +106,8 @@ const cancelRide = catchAsync(
   }
 );
 
-const getAllRides = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const rides = await Ride.find();
-      sendResponse(res, {
-        success: true,
-        message: "Fetched all rides data",
-        statusCode: 201,
-        data: rides,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 export const RideController = {
   requestRide,
   getMyRequestedRides,
   cancelRide,
-  getAllRides,
 };
