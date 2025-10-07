@@ -18,7 +18,6 @@ export interface IGeoLocation {
 export interface IRide {
   _id: Types.ObjectId;
   user_id: Types.ObjectId;
-  driver_id?: Types.ObjectId | null;
   email: string;
   pickup_location: IGeoLocation;
   destination: IGeoLocation;
