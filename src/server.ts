@@ -4,16 +4,20 @@ import { seedAdmin } from "./utils/seedAdmin";
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
+
+
+app.listen(PORT, () => {
+  console.log("Server has started and running sir!!");
+
+});
+
+const startServices = async () => { 
   try {
     await connectDatabase();
     await seedAdmin();
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on http://localhost-or-the-live-url:${PORT}`);
-    });
-  } catch (err) {
-    console.error("❌ Server failed to start:", err);
+  } catch (error: any) {
+    console.log(error.message);
   }
-};
+}
 
-startServer();
+startServices();
