@@ -63,4 +63,4 @@ const rideSchema = new Schema<IRide>({
   },
 });
 
-export const Ride = model("Ride", rideSchema);
+export const Ride = model<IRide>("Ride", rideSchema);

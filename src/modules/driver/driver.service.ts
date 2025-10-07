@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 import { Driver } from "./driver.model";
 import { Ride } from "../ride/ride.model";
 import { DriverStatus, IDriver } from "./driver.interface";
-import { RideStatus } from "../ride/ride.interface";
+import { IRide, RideStatus } from "../ride/ride.interface";
 import { Role } from "../user/user.interface";
 import { User } from "../user/user.model";
 
