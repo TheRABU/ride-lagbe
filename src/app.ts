@@ -14,9 +14,6 @@ app.use(cookieParser());
 
 app.use("/api/v1", router);
 
-app.get("/", () => {
-  console.log("Server chalu hoyeche");
-});
 
 app.get("/", (req, res) => {
   res.status(200).json({  
