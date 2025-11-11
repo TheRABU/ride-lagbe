@@ -11,7 +11,8 @@ const credentialsLogin = catchAsync(
 
     res.cookie("refreshToken", loginInfo.refreshToken, {
       httpOnly: true,
-      secure: false,
+      sameSite: "none",
+      secure: true,
     });
 
     sendResponse(res, {
