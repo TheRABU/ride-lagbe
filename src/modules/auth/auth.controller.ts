@@ -7,12 +7,20 @@ import AppError from "../../helpers/AppError";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const isProduction = process.env.NODE_ENV === "production";
+
     const loginInfo = await AuthServices.credentialsLogin(req.body);
+
+    res.cookie("accessToken", loginInfo.accessToken, {
+      httpOnly: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
+    });
 
     res.cookie("refreshToken", loginInfo.refreshToken, {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
     });
 
     sendResponse(res, {
@@ -26,16 +34,17 @@ const credentialsLogin = catchAsync(
 
 const logOut = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const isProduction = process.env.NODE_ENV === "production";
     try {
       res.clearCookie("accessToken", {
         httpOnly: true,
-        secure: false,
-        // sameSite: "lax",
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
       });
       res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        // sameSite: "lax",
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
       });
 
       res.status(201).json({
@@ -68,9 +77,12 @@ const getNewAccessToken = async (
     const tokenInfo = await AuthServices.getNewAccessToken(refreshToken);
 
     // setAuthCookie(res, tokenInfo);
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("accessToken", tokenInfo.accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
     });
 
     res.status(201).json({
