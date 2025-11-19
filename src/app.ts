@@ -11,7 +11,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL || "https://app.vercel.app",
+  process.env.FRONTEND_URL || "https://ride-lagbe-client.vercel.app",
 ];
 
 app.use(
