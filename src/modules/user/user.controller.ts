@@ -5,6 +5,7 @@ import { sendResponse } from "../../helpers/SuccessResponse";
 import { User } from "./user.model";
 import AppError from "../../helpers/AppError";
 import { IsActive, Role } from "./user.interface";
+import { JwtPayload } from "jsonwebtoken";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const user = await UserServices.createUserService(req.body);
@@ -76,8 +77,38 @@ const blockUnblockUser = catchAsync(
   }
 );
 
+const getMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+
+    const result = await UserServices.getMe(decodedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 201,
+      message: "Your profile Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+
+const getSingleUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    const result = await UserServices.getSingleUser(id);
+    sendResponse(res, {
+      success: true,
+      statusCode: 201,
+      message: "User Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+
 export const UserControllers = {
   registerUser,
   getAllUsers,
   blockUnblockUser,
+  getMe,
+  getSingleUser,
 };

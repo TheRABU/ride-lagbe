@@ -12,6 +12,10 @@ userRoutes.get(
   UserControllers.getAllUsers
 );
 
+// isUserLoggedIn?
+
+userRoutes.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe);
+
 //admin
 userRoutes.patch(
   "/block-unblock/:email",

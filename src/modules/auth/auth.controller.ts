@@ -4,6 +4,7 @@ import { AuthServices } from "./auth.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
 import httpStatus from "http-status-codes";
 import AppError from "../../helpers/AppError";
+import { User } from "../user/user.model";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
