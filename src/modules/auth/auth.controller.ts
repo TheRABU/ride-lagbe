@@ -16,12 +16,14 @@ const credentialsLogin = catchAsync(
       httpOnly: true,
       sameSite: isProduction ? "none" : "lax",
       secure: isProduction,
+      path: "/",
     });
 
     res.cookie("refreshToken", loginInfo.refreshToken, {
       httpOnly: true,
       sameSite: isProduction ? "none" : "lax",
       secure: isProduction,
+      path: "/",
     });
 
     sendResponse(res, {
@@ -41,11 +43,13 @@ const logOut = catchAsync(
         httpOnly: true,
         sameSite: isProduction ? "none" : "lax",
         secure: isProduction,
+        path: "/",
       });
       res.clearCookie("refreshToken", {
         httpOnly: true,
         sameSite: isProduction ? "none" : "lax",
         secure: isProduction,
+        path: "/",
       });
 
       res.status(201).json({
