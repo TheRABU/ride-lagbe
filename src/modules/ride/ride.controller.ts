@@ -67,12 +67,21 @@ const getMyRequestedRides = catchAsync(
       };
       const myInfo = await RideServices.myRidesService(myInfoPayload);
 
-      sendResponse(res, {
-        success: true,
-        message: `Fetched all requests of the user: ${myInfo[0].email}`,
-        statusCode: 201,
-        data: myInfo,
-      });
+      if (!myInfo || myInfo.length === 0) {
+        sendResponse(res, {
+          success: true,
+          message: "No active request found",
+          statusCode: 201,
+          data: [],
+        });
+      } else {
+        sendResponse(res, {
+          success: true,
+          message: `Fetched all requests of the user: ${myInfo[0].email}`,
+          statusCode: 201,
+          data: myInfo,
+        });
+      }
     } catch (error) {
       next(error);
     }
