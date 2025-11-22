@@ -53,17 +53,20 @@ driverRoutes.get(
 //   DriverController.getAssignedRides
 // );
 
-driverRoutes.get(
-  "/all-drivers",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  DriverController.getAllDrivers
-);
+// if user isDriver or not
+
+driverRoutes.get("/is-driver", checkAuth(Role.USER), DriverController.isDriver);
 
 //admin
 driverRoutes.patch(
   "/suspend-unsuspend/:email",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   DriverController.suspendUnsuspendDriver
+);
+driverRoutes.get(
+  "/all-drivers",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  DriverController.getAllDrivers
 );
 
 export default driverRoutes;

@@ -317,6 +317,32 @@ const suspendUnsuspendDriver = catchAsync(
   }
 );
 
+// if user is driver
+
+const isDriver = async (req: Request, res: Response, next: NextFunction) => {
+  const email = req.user?.email;
+  try {
+    const isDriver = await Driver.findOne({ driver_email: email });
+    if (!isDriver) {
+      sendResponse(res, {
+        success: false,
+        message: "This user is not a driver",
+        statusCode: 404,
+        data: null,
+      });
+    }
+
+    sendResponse(res, {
+      success: true,
+      message: "User is a Driver",
+      statusCode: 201,
+      data: isDriver,
+    });
+  } catch (error: any) {
+    console.log("Error at checking isDriver controller", error.message);
+  }
+};
+
 export const DriverController = {
   createProfile,
   setAvailability,
@@ -326,4 +352,5 @@ export const DriverController = {
   getEarnings,
   getAllDrivers,
   suspendUnsuspendDriver,
+  isDriver,
 };
