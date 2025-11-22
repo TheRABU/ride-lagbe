@@ -9,4 +9,10 @@ rideRoutes.post("/request", checkAuth(Role.USER), RideController.requestRide);
 rideRoutes.get("/me", checkAuth(Role.USER), RideController.getMyRequestedRides);
 rideRoutes.delete("/:id", checkAuth(Role.USER), RideController.cancelRide);
 
+rideRoutes.get(
+  "/active-rides",
+  checkAuth(Role.DRIVER, Role.ADMIN),
+  RideController.getActiveRides
+);
+
 export default rideRoutes;

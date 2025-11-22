@@ -283,6 +283,8 @@ const getAllDrivers = catchAsync(
   }
 );
 
+// admin
+
 const suspendUnsuspendDriver = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {

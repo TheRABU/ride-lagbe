@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { RideServices } from "./ride.service";
 import { sendResponse } from "../../helpers/SuccessResponse";
-import { IRide } from "./ride.interface";
+import { IRide, RideStatus } from "./ride.interface";
 import mongoose from "mongoose";
+import { Ride } from "./ride.model";
 
 //api/v1/rides/request
 const requestRide = catchAsync(async (req: Request, res: Response) => {
@@ -115,8 +116,40 @@ const cancelRide = catchAsync(
   }
 );
 
+/*
+
+  getAll available rides
+
+*/
+
+const getActiveRides = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const rides = await Ride.aggregate([
+        {
+          $match: {
+            status: RideStatus.REQUESTED,
+          },
+        },
+      ]);
+      res.status(200).json({
+        status: "success",
+        results: rides.length,
+        data: rides,
+      });
+    } catch (error: any) {
+      console.error("Error at getting active rides", error.message);
+      res.status(500).json({
+        status: "error",
+        message: "Failed to fetch active rides",
+      });
+    }
+  }
+);
+
 export const RideController = {
   requestRide,
   getMyRequestedRides,
   cancelRide,
+  getActiveRides,
 };
