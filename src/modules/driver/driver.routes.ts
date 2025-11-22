@@ -9,7 +9,7 @@ import { createDriverProfileValidation } from "./driver.validation";
 const driverRoutes = express.Router();
 
 driverRoutes.post(
-  "/",
+  "/create",
   checkAuth(Role.USER),
   validateRequest(createDriverProfileValidation),
   DriverController.createProfile
