@@ -12,7 +12,9 @@ export const createDriverProfileValidation = z.object({
     })
     .max(10, { message: "NID cannot exceed 10 characters" }),
   vehicle: z.object({
-    message:
-      "Vehicle should be an object having things like model,licensePlate,color,year",
+    model: z.string(),
+    licensePlate: z.string(),
+    color: z.string(),
+    year: z.number(),
   }),
 });

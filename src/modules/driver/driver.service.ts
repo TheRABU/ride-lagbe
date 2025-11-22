@@ -13,13 +13,24 @@ import { User } from "../user/user.model";
  * Create driver profile (called after user registers or separate flow)
  */
 const createDriverProfile = async (payload: Partial<IDriver>) => {
-  const existing = await Driver.findOne({ driver_email: payload.driver_email });
+  const { driver_email, driver_name, driver_nid, vehicle } = payload;
+
+  const existing = await Driver.findOne({ driver_email: driver_email });
   if (existing) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Driver profile already exists for this user"
     );
   }
+
+  const existingNID = await Driver.findOne({ driver_nid });
+  if (existingNID) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "Driver with this NID already exists"
+    );
+  }
+
   const driver = await Driver.create(payload);
   // then change the user's role to driver
 

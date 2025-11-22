@@ -15,22 +15,63 @@ import { RideServices } from "../ride/ride.service";
 const createProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?.userId;
+      // const userId = req.user?.userId;
 
       const email = req.user?.email;
 
       const { driver_name, driver_nid, vehicle } = req.body;
+      console.log("=== CREATE DRIVER PROFILE DEBUG ===");
+      console.log("User from token:", req.user);
+      console.log("Request body:", req.body);
+      console.log("driver_nid received:", driver_nid);
 
-      if (!userId) throw new Error("Unauthorized");
+      if (!email) {
+        throw new AppError(
+          httpStatus.UNAUTHORIZED,
+          "User email not found in token"
+        );
+      }
+
+      if (!driver_name) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Not found driver_name");
+      }
+      if (!driver_nid) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Not found driver_nid");
+      }
+      if (!vehicle) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Not found vehicle");
+      }
+
+      // Validate vehicle object
+      if (
+        !vehicle.model ||
+        !vehicle.licensePlate ||
+        !vehicle.color ||
+        !vehicle.year
+      ) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          "Vehicle must include model, licensePlate, color, and year"
+        );
+      }
 
       const payload = {
         driver_email: email,
         driver_name,
         driver_nid,
-        vehicle,
+        vehicle: {
+          model: vehicle.model,
+          licensePlate: vehicle.licensePlate,
+          color: vehicle.color,
+          year: Number(vehicle.year),
+        },
       };
 
+      console.log("Payload to service:", payload);
+
       const driver = await DriverServices.createDriverProfile(payload);
+
+      console.log("Driver created:", driver);
       sendResponse(res, {
         success: true,
         statusCode: 201,
