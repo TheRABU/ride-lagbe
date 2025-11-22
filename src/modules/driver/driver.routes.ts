@@ -55,7 +55,11 @@ driverRoutes.get(
 
 // if user isDriver or not
 
-driverRoutes.get("/is-driver", checkAuth(Role.USER), DriverController.isDriver);
+driverRoutes.get(
+  "/is-driver",
+  checkAuth(Role.USER, Role.DRIVER),
+  DriverController.isDriver
+);
 
 //admin
 driverRoutes.patch(
