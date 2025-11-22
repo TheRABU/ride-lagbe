@@ -20,10 +20,6 @@ const createProfile = catchAsync(
       const email = req.user?.email;
 
       const { driver_name, driver_nid, vehicle } = req.body;
-      console.log("=== CREATE DRIVER PROFILE DEBUG ===");
-      console.log("User from token:", req.user);
-      console.log("Request body:", req.body);
-      console.log("driver_nid received:", driver_nid);
 
       if (!email) {
         throw new AppError(
@@ -67,11 +63,8 @@ const createProfile = catchAsync(
         },
       };
 
-      console.log("Payload to service:", payload);
-
       const driver = await DriverServices.createDriverProfile(payload);
 
-      console.log("Driver created:", driver);
       sendResponse(res, {
         success: true,
         statusCode: 201,
