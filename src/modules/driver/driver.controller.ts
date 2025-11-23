@@ -245,6 +245,9 @@ const completedRide = catchAsync(
 const getEarnings = catchAsync(async (req: Request, res: Response) => {
   const email = req.user?.email;
   if (!email) {
+    res.status(404).json({
+      message: "No Email found please login",
+    });
     throw new AppError(404, "Driver's email not found");
   }
   const myEarningPayload = {
@@ -290,7 +293,12 @@ const suspendUnsuspendDriver = catchAsync(
     try {
       const { email } = req.params;
 
-      if (!email) throw new Error("Email is not found");
+      if (!email) {
+        res.status(404).json({
+          message: "No Email found please login",
+        });
+        return;
+      }
 
       const driver = await Driver.findOne({ driver_email: email });
 
@@ -323,6 +331,13 @@ const suspendUnsuspendDriver = catchAsync(
 
 const isDriver = async (req: Request, res: Response, next: NextFunction) => {
   const email = req.user?.email;
+
+  if (!email) {
+    res.status(404).json({
+      message: "No Email found please login",
+    });
+    return;
+  }
   try {
     const isDriver = await Driver.findOne({ driver_email: email });
     if (!isDriver) {

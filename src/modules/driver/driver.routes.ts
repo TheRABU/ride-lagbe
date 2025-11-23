@@ -31,7 +31,7 @@ driverRoutes.patch(
   DriverController.acceptRide
 );
 driverRoutes.post(
-  "/reject",
+  "/reject/:rideId",
   checkAuth(Role.DRIVER),
   DriverController.rejectRide
 );
